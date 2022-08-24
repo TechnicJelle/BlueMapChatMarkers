@@ -1,0 +1,8 @@
+name: BlueMapChatMarkers
+version: '${version}'
+main: com.technicjelle.bluemapchatmarkers.Main
+api-version: 1.13
+depend: [ BlueMap ]
+authors: [ TechnicJelle ]
+description: Adds chat messages to BlueMap
+website: https://github.com/TechnicJelle/BlueMapChatMarkers
