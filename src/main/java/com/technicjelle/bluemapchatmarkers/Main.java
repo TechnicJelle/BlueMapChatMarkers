@@ -44,16 +44,9 @@ public final class Main extends JavaPlugin implements Listener {
 	Consumer<BlueMapAPI> onEnableListener = (api) -> {
 		getServer().getPluginManager().registerEvents(this, this);
 
-
-		Path pluginFolder = getDataFolder().toPath();
-		if (!Files.exists(pluginFolder)) {
-			try {
-				Files.createDirectory(pluginFolder);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		Path styleFile = pluginFolder.resolve("textStyle.css");
+		//noinspection ResultOfMethodCallIgnored
+		getDataFolder().mkdirs();
+		Path styleFile = getDataFolder().toPath().resolve("textStyle.css");
 		if (!Files.exists(styleFile)) {
 			try {
 				Files.copy(getResource("textStyle.css"), styleFile);
@@ -108,10 +101,10 @@ public final class Main extends JavaPlugin implements Listener {
 					.put(String.valueOf(event.hashCode()), marker);
 
 			//wait seconds and remove the marker
-			Bukkit.getScheduler().runTaskLater(this, () -> {
+			Bukkit.getScheduler().runTaskLater(this, () ->
 				markerSets.get(event.getPlayer().getWorld().getUID()).getMarkers()
-						.remove(String.valueOf(event.hashCode()));
-			}, 20 * seconds);
+						.remove(String.valueOf(event.hashCode())),
+				20 * seconds);
 		});
 	}
 
