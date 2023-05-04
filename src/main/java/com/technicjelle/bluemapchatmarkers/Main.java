@@ -1,6 +1,7 @@
 package com.technicjelle.bluemapchatmarkers;
 
 import com.flowpowered.math.vector.Vector3d;
+import com.technicjelle.UpdateChecker;
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;
 import de.bluecolored.bluemap.api.BlueMapWorld;
@@ -16,12 +17,14 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public final class Main extends JavaPlugin implements Listener {
+	private UpdateChecker updateChecker;
 
 	private final int seconds = 60; //TODO: Make this configurable
 
@@ -31,14 +34,20 @@ public final class Main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {
-		// Plugin startup logic
+		new Metrics(this, 16424);
 
-		Metrics metrics = new Metrics(this, 16424);
+		try {
+			updateChecker = new UpdateChecker("TechnicJelle", "BlueMapChatMarkers", getDescription().getVersion());
+			updateChecker.checkAsync();
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
 
 		BlueMapAPI.onEnable(onEnableListener);
 	}
 
 	Consumer<BlueMapAPI> onEnableListener = (api) -> {
+		updateChecker.logUpdateMessage(getLogger());
 		getServer().getPluginManager().registerEvents(this, this);
 
 		//noinspection ResultOfMethodCallIgnored
