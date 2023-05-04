@@ -17,13 +17,12 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public final class Main extends JavaPlugin implements Listener {
+public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 	private UpdateChecker updateChecker;
 
 	private final int seconds = 60; //TODO: Make this configurable
@@ -36,12 +35,8 @@ public final class Main extends JavaPlugin implements Listener {
 	public void onEnable() {
 		new Metrics(this, 16424);
 
-		try {
-			updateChecker = new UpdateChecker("TechnicJelle", "BlueMapChatMarkers", getDescription().getVersion());
-			updateChecker.checkAsync();
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+		updateChecker = new UpdateChecker("TechnicJelle", "BlueMapChatMarkers", getDescription().getVersion());
+		updateChecker.checkAsync();
 
 		BlueMapAPI.onEnable(onEnableListener);
 	}
