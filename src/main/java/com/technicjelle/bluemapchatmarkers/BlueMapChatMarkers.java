@@ -90,9 +90,10 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 
 			Location location = player.getLocation();
 
-			HtmlMarker marker = new HtmlMarker(player.getName() + ": " + event.getMessage(),
+			String message = ChatColor.stripColor(event.getMessage());
+			HtmlMarker marker = new HtmlMarker(player.getName() + ": " + message,
 					new Vector3d(location.getX(), location.getY(), location.getZ()),
-					"<div class='chatMarker'>" + event.getMessage() + "</div>");
+					"<div class='chatMarker'>" + message + "</div>");
 
 			//for all BlueMap Maps belonging to the BlueMap World the Player is in, add the Marker to the MarkerSet of that BlueMap World
 			bmWorld.getMaps().forEach(map -> {
