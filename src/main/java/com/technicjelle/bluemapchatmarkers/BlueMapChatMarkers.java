@@ -1,6 +1,7 @@
 package com.technicjelle.bluemapchatmarkers;
 
-import com.flowpowered.math.vector.Vector3d;
+import com.technicjelle.BMUtils;
+import com.technicjelle.MCUtils;
 import com.technicjelle.UpdateChecker;
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;
@@ -9,6 +10,7 @@ import de.bluecolored.bluemap.api.markers.HtmlMarker;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,19 +19,13 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unused")
 public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
+	private final String MARKERSET_ID = "chat-markers";
 	private UpdateChecker updateChecker;
 
 	private final int seconds = 60; //TODO: Make this configurable
-
-	private String style; //This is configurable in the style.css file
-
-	private final String MARKERSET_ID = "chat-markers"; //No need to make this configurable
 
 	@Override
 	public void onEnable() {
@@ -38,26 +34,18 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 		updateChecker = new UpdateChecker("TechnicJelle", "BlueMapChatMarkers", getDescription().getVersion());
 		updateChecker.checkAsync();
 
+		getServer().getPluginManager().registerEvents(this, this);
+
 		BlueMapAPI.onEnable(onEnableListener);
 	}
 
-	Consumer<BlueMapAPI> onEnableListener = (api) -> {
+	Consumer<BlueMapAPI> onEnableListener = api -> {
 		updateChecker.logUpdateMessage(getLogger());
-		getServer().getPluginManager().registerEvents(this, this);
 
-		//noinspection ResultOfMethodCallIgnored
-		getDataFolder().mkdirs();
-		Path styleFile = getDataFolder().toPath().resolve("textStyle.css");
-		if (!Files.exists(styleFile)) {
-			try {
-				Files.copy(getResource("textStyle.css"), styleFile);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
+		String styleFile = "textStyle.css";
 		try {
-			style = Files.readString(styleFile);
+			MCUtils.copyPluginResourceToConfigDir(this, styleFile, styleFile, false);
+			BMUtils.copyFileToBlueMap(api, getDataFolder().toPath().resolve(styleFile), styleFile, true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -73,11 +61,6 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 		for (BlueMapMap map : bmWorld.getMaps()) {
 			map.getMarkerSets().put(MARKERSET_ID, markerSet);
 		}
-
-		//make a marker that the loads in the style to be used for all the chat markers
-		HtmlMarker marker = new HtmlMarker("MarkerStyleLoader", new Vector3d(0, 0, 0), "<style>" + style + "</style>");
-
-		markerSet.put("style-loader", marker);
 	}
 
 	@EventHandler
@@ -91,18 +74,21 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 			Location location = player.getLocation();
 
 			String message = ChatColor.stripColor(event.getMessage());
-			HtmlMarker marker = new HtmlMarker(player.getName() + ": " + message,
-					new Vector3d(location.getX(), location.getY(), location.getZ()),
-					"<div class='chatMarker'>" + message + "</div>");
+			HtmlMarker marker = HtmlMarker.builder()
+					.label(player.getName() + ": " + message)
+					.position(location.getX(), location.getY() + 1.8, location.getZ()) // +1.8 to put the marker at the player's head level
+					.styleClasses("chat-marker")
+					.html(message)
+					.build();
 
 			//for all BlueMap Maps belonging to the BlueMap World the Player is in, add the Marker to the MarkerSet of that BlueMap World
 			bmWorld.getMaps().forEach(map -> {
-				if(!map.getMarkerSets().containsKey(MARKERSET_ID)) //if this world doesn't have a MarkerSet yet, create it
+				if (!map.getMarkerSets().containsKey(MARKERSET_ID)) //if this world doesn't have a MarkerSet yet, create it
 					createMarkerSet(bmWorld); //creates a new MarkerSet, and assigns it to each Map of this World
 
 				MarkerSet markerSet = map.getMarkerSets().get(MARKERSET_ID);
 
-				String key = String.valueOf(event.hashCode());
+				String key = "chat-marker_" + event.hashCode();
 
 				//add Marker to the MarkerSet
 				markerSet.put(key, marker);
