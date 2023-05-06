@@ -86,7 +86,7 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 			Player player = event.getPlayer();
 			BlueMapWorld bmWorld = api.getWorld(player.getWorld()).orElse(null);
 			if (bmWorld == null) return; //world not loaded in BlueMap, ignore
-//			if (!api.getWebApp().getPlayerVisibility(player.getUniqueId())) return; //player hidden on BlueMap, ignore //TODO: Turn this back on once BlueMap fixes this
+			if (!api.getWebApp().getPlayerVisibility(player.getUniqueId())) return; //player hidden on BlueMap, ignore
 
 			Location location = player.getLocation();
 
