@@ -22,10 +22,8 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
-	private final String MARKERSET_ID = "chat-markers";
+	private Config config;
 	private UpdateChecker updateChecker;
-
-	private final int seconds = 60; //TODO: Make this configurable
 
 	@Override
 	public void onEnable() {
@@ -42,6 +40,8 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 	Consumer<BlueMapAPI> onEnableListener = api -> {
 		updateChecker.logUpdateMessage(getLogger());
 
+		config = new Config(this);
+
 		String styleFile = "textStyle.css";
 		try {
 			MCUtils.copyPluginResourceToConfigDir(this, styleFile, styleFile, false);
@@ -52,14 +52,12 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 	};
 
 	private void createMarkerSet(BlueMapWorld bmWorld) {
-		getLogger().info("Creating MarkerSet for BlueMap World " + bmWorld.getId());
-		MarkerSet markerSet = new MarkerSet("Chat Markers");
-		markerSet.setDefaultHidden(false);
-		markerSet.setToggleable(true);
+		getLogger().info("Creating MarkerSet for BlueMap World '" + bmWorld.getSaveFolder().getFileName() + "'");
+		MarkerSet markerSet = new MarkerSet(config.markerSetName, config.toggleable, config.defaultHidden);
 
 		//add the markerset to all BlueMap maps of this world
 		for (BlueMapMap map : bmWorld.getMaps()) {
-			map.getMarkerSets().put(MARKERSET_ID, markerSet);
+			map.getMarkerSets().put(Config.MARKER_SET_ID, markerSet);
 		}
 	}
 
@@ -83,10 +81,10 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 
 			//for all BlueMap Maps belonging to the BlueMap World the Player is in, add the Marker to the MarkerSet of that BlueMap World
 			bmWorld.getMaps().forEach(map -> {
-				if (!map.getMarkerSets().containsKey(MARKERSET_ID)) //if this world doesn't have a MarkerSet yet, create it
+				if (!map.getMarkerSets().containsKey(Config.MARKER_SET_ID)) //if this world doesn't have a MarkerSet yet, create it
 					createMarkerSet(bmWorld); //creates a new MarkerSet, and assigns it to each Map of this World
 
-				MarkerSet markerSet = map.getMarkerSets().get(MARKERSET_ID);
+				MarkerSet markerSet = map.getMarkerSets().get(Config.MARKER_SET_ID);
 
 				String key = "chat-marker_" + event.hashCode();
 
@@ -96,7 +94,7 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 				//wait Seconds and remove the Marker
 				Bukkit.getScheduler().runTaskLater(this,
 						() -> markerSet.remove(key),
-						seconds * 20);
+						config.markerDuration * 20L);
 			});
 		});
 	}

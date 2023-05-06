@@ -1,0 +1,8 @@
+# Marker Set Options
+# Documentation: https://bluemap.bluecolored.de/wiki/customization/Markers.html#marker-sets
+MarkerSetName: "Chat Messages"
+Toggleable: true
+DefaultHidden: false
+
+# Amount of time a chat marker stays on the map (in seconds)
+MarkerDuration: 60
