@@ -4,7 +4,6 @@ import com.technicjelle.BMUtils;
 import com.technicjelle.MCUtils;
 import com.technicjelle.UpdateChecker;
 import de.bluecolored.bluemap.api.BlueMapAPI;
-import de.bluecolored.bluemap.api.BlueMapMap;
 import de.bluecolored.bluemap.api.BlueMapWorld;
 import de.bluecolored.bluemap.api.markers.HtmlMarker;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
@@ -20,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 	private Config config;
@@ -47,55 +47,50 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 			MCUtils.copyPluginResourceToConfigDir(this, styleFile, styleFile, false);
 			BMUtils.copyFileToBlueMap(api, getDataFolder().toPath().resolve(styleFile), styleFile, true);
 		} catch (IOException e) {
-			e.printStackTrace();
+			getLogger().log(Level.SEVERE, "Failed to copy " + styleFile + " to BlueMap", e);
 		}
 	};
 
-	private void createMarkerSet(BlueMapWorld bmWorld) {
-		getLogger().info("Creating MarkerSet for BlueMap World '" + bmWorld.getSaveFolder().getFileName() + "'");
-		MarkerSet markerSet = new MarkerSet(config.markerSetName, config.toggleable, config.defaultHidden);
-
-		//add the markerset to all BlueMap maps of this world
-		for (BlueMapMap map : bmWorld.getMaps()) {
-			map.getMarkerSets().put(Config.MARKER_SET_ID, markerSet);
-		}
-	}
-
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
-		BlueMapAPI.getInstance().ifPresent(api -> {
-			Player player = event.getPlayer();
-			BlueMapWorld bmWorld = api.getWorld(player.getWorld()).orElse(null);
-			if (bmWorld == null) return; //world not loaded in BlueMap, ignore
-			if (!api.getWebApp().getPlayerVisibility(player.getUniqueId())) return; //player hidden on BlueMap, ignore
+		BlueMapAPI api = BlueMapAPI.getInstance().orElse(null);
+		if (api == null) return; //BlueMap not loaded, ignore
 
-			Location location = player.getLocation();
+		Player player = event.getPlayer();
 
-			String message = ChatColor.stripColor(event.getMessage());
-			HtmlMarker marker = HtmlMarker.builder()
-					.label(player.getName() + ": " + message)
-					.position(location.getX(), location.getY() + 1.8, location.getZ()) // +1.8 to put the marker at the player's head level
-					.styleClasses("chat-marker")
-					.html(message)
-					.build();
+		BlueMapWorld bmWorld = api.getWorld(player.getWorld()).orElse(null);
+		if (bmWorld == null) return; //world not loaded in BlueMap, ignore
 
-			//for all BlueMap Maps belonging to the BlueMap World the Player is in, add the Marker to the MarkerSet of that BlueMap World
-			bmWorld.getMaps().forEach(map -> {
-				if (!map.getMarkerSets().containsKey(Config.MARKER_SET_ID)) //if this world doesn't have a MarkerSet yet, create it
-					createMarkerSet(bmWorld); //creates a new MarkerSet, and assigns it to each Map of this World
+		if (!api.getWebApp().getPlayerVisibility(player.getUniqueId())) return; //player hidden on BlueMap, ignore
 
-				MarkerSet markerSet = map.getMarkerSets().get(Config.MARKER_SET_ID);
+		Location location = player.getLocation();
 
-				String key = "chat-marker_" + event.hashCode();
+		String message = ChatColor.stripColor(event.getMessage());
+		HtmlMarker marker = HtmlMarker.builder()
+				.label(player.getName() + ": " + message)
+				.position(location.getX(), location.getY() + 1.8, location.getZ()) // +1.8 to put the marker at the player's head level
+				.styleClasses("chat-marker")
+				.html(message)
+				.build();
 
-				//add Marker to the MarkerSet
-				markerSet.put(key, marker);
+		//for all BlueMap Maps belonging to the BlueMap World the Player is in, add the Marker to the MarkerSet of that BlueMap World
+		bmWorld.getMaps().forEach(map -> {
+			// get marker-set of map (or create new marker set if none found)
+			MarkerSet markerSet = map.getMarkerSets().computeIfAbsent(Config.MARKER_SET_ID, id -> MarkerSet.builder()
+					.label(config.markerSetName)
+					.toggleable(config.toggleable)
+					.defaultHidden(config.defaultHidden)
+					.build());
 
-				//wait Seconds and remove the Marker
-				Bukkit.getScheduler().runTaskLater(this,
-						() -> markerSet.remove(key),
-						config.markerDuration * 20L);
-			});
+			String key = "chat-marker_" + event.hashCode();
+
+			//add Marker to the MarkerSet
+			markerSet.put(key, marker);
+
+			//wait Seconds and remove the Marker
+			Bukkit.getScheduler().runTaskLater(this,
+					() -> markerSet.remove(key),
+					config.markerDuration * 20L);
 		});
 	}
 
