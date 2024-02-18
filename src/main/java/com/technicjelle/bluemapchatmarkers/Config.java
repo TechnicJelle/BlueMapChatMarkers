@@ -29,11 +29,11 @@ public class Config {
 		plugin.reloadConfig();
 
 		//Load config values into variables
-		markerSetName = configFile().getString("MarkerSetName");
-		toggleable = configFile().getBoolean("Toggleable");
-		defaultHidden = configFile().getBoolean("DefaultHidden");
-		markerDuration = configFile().getLong("MarkerDuration");
-		forceful = configFile().getBoolean("Forceful");
+		markerSetName = configFile().getString("MarkerSetName", "Chat Messages");
+		toggleable = configFile().getBoolean("Toggleable", true);
+		defaultHidden = configFile().getBoolean("DefaultHidden", false);
+		markerDuration = configFile().getLong("MarkerDuration", 60);
+		forceful = configFile().getBoolean("Forceful", false);
 	}
 
 	private FileConfiguration configFile() {
