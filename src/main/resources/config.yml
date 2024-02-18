@@ -7,5 +7,6 @@ DefaultHidden: false
 # Amount of time a chat marker stays on the map (in seconds)
 MarkerDuration: 60
 
-# Change to true if every message should be displayed, no matter if other plugins cancel them (like private messages)
+# Set this to `true` if you have other chat management plugins that are cancelling the chat event
+# before it gets registered with this plugin
 Forceful: false
