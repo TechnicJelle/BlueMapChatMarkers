@@ -54,7 +54,7 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
-		if (event.isCancelled()) return;
+		if (event.isCancelled() && !config.forceful) return;
 		BlueMapAPI api = BlueMapAPI.getInstance().orElse(null);
 		if (api == null) return; //BlueMap not loaded, ignore
 

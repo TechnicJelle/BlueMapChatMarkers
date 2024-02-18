@@ -13,6 +13,7 @@ public class Config {
 	public String markerSetName;
 	public boolean toggleable;
 	public boolean defaultHidden;
+	public boolean forceful;
 	public long markerDuration;
 
 	public Config(BlueMapChatMarkers plugin) {
@@ -32,6 +33,7 @@ public class Config {
 		toggleable = configFile().getBoolean("Toggleable");
 		defaultHidden = configFile().getBoolean("DefaultHidden");
 		markerDuration = configFile().getLong("MarkerDuration");
+		forceful = configFile().getBoolean("Forceful");
 	}
 
 	private FileConfiguration configFile() {
