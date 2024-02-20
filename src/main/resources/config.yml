@@ -7,6 +7,6 @@ DefaultHidden: false
 # Amount of time a chat marker stays on the map (in seconds)
 MarkerDuration: 60
 
-# Set this to `true` if you have other chat management plugins that are cancelling the chat event
-# before it gets registered with this plugin
+# Set this to `true` if you have other chat management plugins that are cancelling
+# the chat events, before they're able to get picked up by this plugin
 Forceful: false
