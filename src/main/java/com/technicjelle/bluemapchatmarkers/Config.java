@@ -10,11 +10,11 @@ public class Config {
 
 	private final BlueMapChatMarkers plugin;
 
-	public String markerSetName;
-	public boolean toggleable;
-	public boolean defaultHidden;
-	public boolean forceful;
-	public long markerDuration;
+	private final String markerSetName;
+	private final boolean toggleable;
+	private final boolean defaultHidden;
+	private final long markerDuration;
+	private final boolean forceful;
 
 	public Config(BlueMapChatMarkers plugin) {
 		this.plugin = plugin;
@@ -38,5 +38,25 @@ public class Config {
 
 	private FileConfiguration configFile() {
 		return plugin.getConfig();
+	}
+
+	public String getMarkerSetName() {
+		return markerSetName;
+	}
+
+	public boolean isToggleable() {
+		return toggleable;
+	}
+
+	public boolean isDefaultHidden() {
+		return defaultHidden;
+	}
+
+	public long getMarkerDuration() {
+		return markerDuration;
+	}
+
+	public boolean getForceful() {
+		return forceful;
 	}
 }

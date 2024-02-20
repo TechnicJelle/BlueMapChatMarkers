@@ -54,7 +54,7 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
-		if (event.isCancelled() && !config.forceful) return;
+		if (event.isCancelled() && !config.getForceful()) return;
 		BlueMapAPI api = BlueMapAPI.getInstance().orElse(null);
 		if (api == null) return; //BlueMap not loaded, ignore
 
@@ -79,9 +79,9 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 		bmWorld.getMaps().forEach(map -> {
 			// get marker-set of map (or create new marker set if none found)
 			MarkerSet markerSet = map.getMarkerSets().computeIfAbsent(Config.MARKER_SET_ID, id -> MarkerSet.builder()
-					.label(config.markerSetName)
-					.toggleable(config.toggleable)
-					.defaultHidden(config.defaultHidden)
+					.label(config.getMarkerSetName())
+					.toggleable(config.isToggleable())
+					.defaultHidden(config.isDefaultHidden())
 					.build());
 
 			String key = "chat-marker_" + event.hashCode();
@@ -92,7 +92,7 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 			//wait Seconds and remove the Marker
 			Bukkit.getScheduler().runTaskLater(this,
 					() -> markerSet.remove(key),
-					config.markerDuration * 20L);
+					config.getMarkerDuration() * 20L);
 		});
 	}
 
