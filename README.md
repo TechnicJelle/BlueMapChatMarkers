@@ -11,7 +11,7 @@ Compatible with Paper 1.13+, just like BlueMap itself.
 You can customise the style of the markers with the [`textStyle.css`](src/main/resources/textStyle.css) file in the config directory.\
 To reload it, just reload BlueMap itself with `/bluemap reload`.
 
-If you're using VentureChat, you may want to use out a fork of this plugin instead: [Mark-225/BlueMapVentureChatMarkers](https://github.com/Mark-225/BlueMapVentureChatMarkers)\
+If you're using VentureChat, you may want to use a fork of this plugin instead: [Mark-225/BlueMapVentureChatMarkers](https://github.com/Mark-225/BlueMapVentureChatMarkers)\
 (I am not responsible for it, though)
 
 ## [Click here to download!](../../releases/latest)
