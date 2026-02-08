@@ -1,7 +1,7 @@
 package com.technicjelle.bluemapchatmarkers;
 
-import com.technicjelle.BMUtils;
-import com.technicjelle.MCUtils;
+import com.technicjelle.BMUtils.BMCopy;
+import com.technicjelle.MCUtils.ConfigUtils;
 import com.technicjelle.UpdateChecker;
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapWorld;
@@ -13,10 +13,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.event.EventPriority;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -43,10 +43,10 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 
 		config = new Config(this);
 
-		String styleFile = "textStyle.css";
+		final String styleFile = "textStyle.css";
 		try {
-			MCUtils.copyPluginResourceToConfigDir(this, styleFile, styleFile, false);
-			BMUtils.copyFileToBlueMap(api, getDataFolder().toPath().resolve(styleFile), styleFile, true);
+			ConfigUtils.copyPluginResourceToConfigDir(this, styleFile, styleFile, false);
+			BMCopy.fileToWebApp(api, getDataFolder().toPath().resolve(styleFile), styleFile, true);
 		} catch (IOException e) {
 			getLogger().log(Level.SEVERE, "Failed to copy " + styleFile + " to BlueMap", e);
 		}
@@ -55,20 +55,20 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		if (event.isCancelled() && !config.getForceful()) return;
-		BlueMapAPI api = BlueMapAPI.getInstance().orElse(null);
+		final BlueMapAPI api = BlueMapAPI.getInstance().orElse(null);
 		if (api == null) return; //BlueMap not loaded, ignore
 
-		Player player = event.getPlayer();
+		final Player player = event.getPlayer();
 
-		BlueMapWorld bmWorld = api.getWorld(player.getWorld()).orElse(null);
+		final BlueMapWorld bmWorld = api.getWorld(player.getWorld()).orElse(null);
 		if (bmWorld == null) return; //world not loaded in BlueMap, ignore
 
 		if (!api.getWebApp().getPlayerVisibility(player.getUniqueId())) return; //player hidden on BlueMap, ignore
 
-		Location location = player.getLocation();
+		final Location location = player.getLocation();
 
-		String message = ChatColor.stripColor(event.getMessage());
-		HtmlMarker marker = HtmlMarker.builder()
+		final String message = ChatColor.stripColor(event.getMessage());
+		final HtmlMarker marker = HtmlMarker.builder()
 				.label(player.getName() + ": " + message)
 				.position(location.getX(), location.getY() + 1.8, location.getZ()) // +1.8 to put the marker at the player's head level
 				.styleClasses("chat-marker")
@@ -78,13 +78,13 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 		//for all BlueMap Maps belonging to the BlueMap World the Player is in, add the Marker to the MarkerSet of that BlueMap World
 		bmWorld.getMaps().forEach(map -> {
 			// get marker-set of map (or create new marker set if none found)
-			MarkerSet markerSet = map.getMarkerSets().computeIfAbsent(Config.MARKER_SET_ID, id -> MarkerSet.builder()
+			final MarkerSet markerSet = map.getMarkerSets().computeIfAbsent(Config.MARKER_SET_ID, id -> MarkerSet.builder()
 					.label(config.getMarkerSetName())
 					.toggleable(config.isToggleable())
 					.defaultHidden(config.isDefaultHidden())
 					.build());
 
-			String key = "chat-marker_" + event.hashCode();
+			final String key = "chat-marker_" + event.hashCode();
 
 			//add Marker to the MarkerSet
 			markerSet.put(key, marker);

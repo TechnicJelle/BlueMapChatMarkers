@@ -1,6 +1,6 @@
 package com.technicjelle.bluemapchatmarkers;
 
-import com.technicjelle.MCUtils;
+import com.technicjelle.MCUtils.ConfigUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class Config {
 		this.plugin = plugin;
 
 		try {
-			MCUtils.copyPluginResourceToConfigDir(plugin, "config.yml", "config.yml", false);
+			ConfigUtils.copyPluginResourceToConfigDir(plugin, "config.yml", "config.yml", false);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
