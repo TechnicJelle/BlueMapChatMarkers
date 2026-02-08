@@ -1,4 +1,4 @@
-package com.technicjelle.bluemapchatmarkers;
+package com.technicjelle.BlueMapChatMarkers;
 
 import com.technicjelle.MCUtils.ConfigUtils;
 import org.bukkit.configuration.file.FileConfiguration;

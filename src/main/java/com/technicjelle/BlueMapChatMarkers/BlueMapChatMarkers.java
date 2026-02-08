@@ -1,4 +1,4 @@
-package com.technicjelle.bluemapchatmarkers;
+package com.technicjelle.BlueMapChatMarkers;
 
 import com.technicjelle.BMUtils.BMCopy;
 import com.technicjelle.MCUtils.ConfigUtils;
