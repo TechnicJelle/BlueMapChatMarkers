@@ -1,6 +1,6 @@
 package com.technicjelle.bluemapchatmarkers;
 
-import com.technicjelle.BMUtils;
+import com.technicjelle.BMUtils.BMCopy;
 import com.technicjelle.MCUtils;
 import com.technicjelle.UpdateChecker;
 import de.bluecolored.bluemap.api.BlueMapAPI;
@@ -46,7 +46,7 @@ public final class BlueMapChatMarkers extends JavaPlugin implements Listener {
 		String styleFile = "textStyle.css";
 		try {
 			MCUtils.copyPluginResourceToConfigDir(this, styleFile, styleFile, false);
-			BMUtils.copyFileToBlueMap(api, getDataFolder().toPath().resolve(styleFile), styleFile, true);
+			BMCopy.fileToWebApp(api, getDataFolder().toPath().resolve(styleFile), styleFile, true);
 		} catch (IOException e) {
 			getLogger().log(Level.SEVERE, "Failed to copy " + styleFile + " to BlueMap", e);
 		}
